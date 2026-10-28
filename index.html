@@ -106,6 +106,11 @@ figcaption{font-size:14px;color:var(--muted)}
 
 footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;padding-top:28px;padding-bottom:28px;font-size:14px;color:var(--muted)}
 footer{border-top:1px solid var(--line)}
+/* Top quote */
+.top-quote{padding:72px 24px 64px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:22px;background:radial-gradient(ellipse at 50% 0%,rgba(232,163,61,.14),transparent 70%)}
+.top-quote blockquote{max-width:900px;font-size:clamp(30px,4.6vw,54px);line-height:1.18;font-style:italic;letter-spacing:-.5px}
+.top-quote blockquote em{color:var(--accent);font-style:italic}
+.top-quote figcaption{font-size:13px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--teal)}
 </style>
 </head>
 <body>
@@ -125,7 +130,13 @@ footer{border-top:1px solid var(--line)}
   </nav>
 </header>
 
-<section class="band" aria-label="Human check poll" style="border-top:0">
+
+<figure class="top-quote" aria-label="Quote">
+  <blockquote>“The machine will soon know almost everything. It will never know <em>why you wake up.</em>”</blockquote>
+  <figcaption>— Artificial Saint</figcaption>
+</figure>
+
+<section class="band" aria-label="Human check poll">
   <div class="poll">
     <div class="poll-tag">
       <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#4FD1C5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M8 12l3 3 5-6"/></svg>
@@ -293,10 +304,25 @@ footer{border-top:1px solid var(--line)}
     <h2>A healthy, happy, purposeful life</h2>
   </div>
   <div class="topics">
-    <a href="/blog/" class="topic"><strong>AI and purpose</strong><span>Do we need it? How to use it without losing ourselves.</span></a>
+    <a href="/blog/do-we-need-ai.html" class="topic"><strong>AI and purpose</strong><span>Do we need it? How to use it without losing ourselves.</span></a>
     <a href="#subscribe" class="topic"><strong>Eat well</strong><span>Simple, science-checked food tips for a longer life.</span></a>
     <a href="#subscribe" class="topic"><strong>Live happy</strong><span>Habits and mindset for a calm mind in a noisy world.</span></a>
-    <a href="#subscribe" class="topic"><strong>Work and the future</strong><span>Staying relevant and hopeful as jobs change.</span></a>
+    <a href="/blog/will-i-have-a-job-after-agi.html" class="topic"><strong>Work and the future</strong><span>Staying relevant and hopeful as jobs change.</span></a>
+  </div>
+</section>
+
+<section id="latest" style="border-top:1px solid var(--line)">
+  <div class="wrap section">
+    <div class="section-head">
+      <p class="eyebrow">Latest writing</p>
+      <h2>Read, think, then decide</h2>
+    </div>
+    <div class="topics">
+      <a href="/blog/do-we-need-ai.html" class="topic"><strong>Do we need AI?</strong><span>The fair case for and against, and a four-question test for your own life.</span></a>
+      <a href="/blog/how-to-succeed-learning-ai.html" class="topic"><strong>How to be successful learning AI</strong><span>A calm, practical 90-day path, at any age.</span></a>
+      <a href="/blog/will-i-have-a-job-after-agi.html" class="topic"><strong>Will I have a job after AGI?</strong><span>What history says, what may differ, and what you control.</span></a>
+      <a href="/tech/build-a-chatbot-with-your-files-and-database.html" class="topic"><strong>Build a chatbot on your own data</strong><span>Tech guide: answer customers from your files and database.</span></a>
+    </div>
   </div>
 </section>
 

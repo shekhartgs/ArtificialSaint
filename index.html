@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Artificial Saint — Do we really need AI?</title>
+<meta name="description" content="Ancient wisdom meets modern machines. Honest thinking on AI, health and living with purpose.">
+<meta property="og:title" content="Artificial Saint — Do we really need AI?">
+<meta property="og:description" content="Use the machine. Keep the fire.">
+<meta property="og:url" content="https://artificialsaint.com">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0E1116; --bg2:#141820; --line:#22272F; --card-line:#262B33;
+  --text:#EDE8DF; --soft:#C9C3B8; --muted:#A9A49A;
+  --accent:#E8A33D; --teal:#4FD1C5;
+  --serif:'Fraunces',Georgia,serif; --sans:'Inter',system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:17px;line-height:1.65}
+a{color:var(--accent)} a:hover{color:#F4C27A}
+.wrap{max-width:1120px;margin:0 auto;padding-left:24px;padding-right:24px}
+.narrow{max-width:760px;margin:0 auto;padding-left:24px;padding-right:24px}
+.band{background:var(--bg2);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.eyebrow{margin:0;font-size:13px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--accent)}
+h1,h2,h3{font-family:var(--serif);font-weight:600;margin:0;line-height:1.1}
+p{margin:0}
+.btn{display:inline-block;text-decoration:none;padding:14px 26px;border-radius:999px;font-weight:600;font-size:16px;border:0;cursor:pointer;font-family:inherit}
+.btn-primary{background:var(--accent);color:var(--bg)} .btn-primary:hover{color:var(--bg);filter:brightness(1.08)}
+.btn-ghost{color:var(--text);border:1px solid #3A414C;padding:13px 26px;font-weight:500}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* Header */
+header{border-bottom:1px solid var(--line)}
+nav{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px;padding-top:20px;padding-bottom:20px}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text)}
+.logo span{font-family:var(--serif);font-size:22px;font-weight:600}
+.navlinks{display:flex;flex-wrap:wrap;align-items:center;gap:8px 28px;font-size:15px}
+.navlinks a{color:var(--soft);text-decoration:none}
+.navlinks a.btn{color:var(--bg);padding:10px 18px}
+
+/* Poll */
+.poll{max-width:880px;margin:0 auto;padding:48px 24px;display:flex;flex-direction:column;gap:20px}
+.poll-tag{display:flex;align-items:center;gap:12px}
+.poll-tag p{font-size:13px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--teal)}
+.poll h2{font-size:clamp(26px,3.2vw,34px);line-height:1.2}
+.options{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.option{text-align:left;cursor:pointer;font:inherit;color:var(--text);background:var(--bg);border:2px solid #2C323C;border-radius:18px;padding:22px 24px;display:flex;flex-direction:column;gap:8px}
+.option[aria-pressed="true"]{background:#1E2530;border-color:var(--accent)}
+.option strong{font-family:var(--serif);font-size:21px}
+.option span{font-size:15px;color:var(--muted)}
+.vote-row{display:flex;flex-wrap:wrap;align-items:center;gap:16px}
+#vote:disabled{background:#5C5850;cursor:not-allowed}
+.hint{font-size:14px;color:var(--muted)}
+[hidden]{display:none !important}
+
+/* Hero */
+.hero{display:flex;flex-wrap:wrap;align-items:center;gap:48px;padding-top:72px;padding-bottom:80px}
+.hero-text{flex:1 1 460px;min-width:0;display:flex;flex-direction:column;gap:24px}
+.hero h1{font-size:clamp(42px,6vw,72px);line-height:1.05;letter-spacing:-1px}
+.hero-sub{font-size:20px;color:var(--soft);max-width:540px}
+.hero-ctas{display:flex;flex-wrap:wrap;gap:12px;padding-top:8px}
+.hero-art{flex:1 1 360px;min-width:0;display:flex;justify-content:center}
+.hero-art svg{width:100%;max-width:420px;height:auto}
+
+/* Quotes */
+.quotes{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:32px;padding-top:72px;padding-bottom:72px}
+figure{margin:0;display:flex;flex-direction:column;gap:16px}
+.qmark{font-family:var(--serif);font-size:64px;line-height:.5;color:var(--accent)}
+blockquote{margin:0;font-family:var(--serif);font-style:italic;font-size:26px;line-height:1.35}
+figcaption{font-size:14px;color:var(--muted)}
+
+/* Manifesto */
+.manifesto{display:flex;flex-direction:column;gap:22px;padding-top:96px;padding-bottom:96px}
+.manifesto h2{font-size:clamp(34px,4.5vw,48px)}
+.lead{font-size:20px;color:var(--soft)}
+.closing{font-family:var(--serif);font-size:24px;line-height:1.4}
+
+/* Sections */
+.section{display:flex;flex-direction:column;gap:40px;padding-top:88px;padding-bottom:88px}
+.section-head{display:flex;flex-direction:column;gap:12px;max-width:640px}
+.section-head h2{font-size:clamp(32px,4vw,44px)}
+.two-col{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:24px}
+.card{background:var(--bg);border:1px solid var(--card-line);border-radius:20px;padding:32px;display:flex;flex-direction:column;gap:18px}
+.card-head{display:flex;align-items:center;gap:12px}
+.card h3{font-size:26px}
+.card ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:10px;color:#D6D0C5}
+.topics{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px}
+.topic{text-decoration:none;color:var(--text);border:1px solid var(--card-line);border-radius:20px;padding:28px;display:flex;flex-direction:column;gap:10px;background:var(--bg2)}
+.topic:hover{color:var(--text);border-color:var(--accent)}
+.topic strong{font-family:var(--serif);font-size:22px}
+.topic span{color:var(--muted);font-size:15px}
+
+/* Subscribe */
+.subscribe{display:flex;flex-direction:column;align-items:center;gap:20px;text-align:center;padding-top:88px;padding-bottom:88px}
+.subscribe h2{font-size:clamp(30px,4vw,40px);line-height:1.15}
+.sub-form{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;width:100%;max-width:520px;padding-top:8px}
+.sub-form input{flex:1 1 260px;min-width:0;height:52px;padding:0 20px;border-radius:999px;border:1px solid #3A414C;background:var(--bg);color:var(--text);font:inherit;font-size:16px}
+.sub-form button{height:52px;padding:0 28px}
+.social{display:flex;flex-wrap:wrap;justify-content:center;gap:24px;padding-top:12px;font-size:15px}
+
+footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;padding-top:28px;padding-bottom:28px;font-size:14px;color:var(--muted)}
+footer{border-top:1px solid var(--line)}
+</style>
+</head>
+<body>
+
+<header>
+  <nav class="wrap" aria-label="Main">
+    <a href="#top" class="logo">
+      <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="12" fill="none" stroke="#E8A33D" stroke-width="2"/><circle cx="14" cy="14" r="5" fill="#4FD1C5"/><circle cx="14" cy="14" r="2" fill="#0E1116"/></svg>
+      <span>Artificial Saint</span>
+    </a>
+    <div class="navlinks">
+      <a href="#manifesto">Manifesto</a>
+      <a href="#wisdom">Use AI wisely</a>
+      <a href="#topics">Topics</a>
+      <a href="#subscribe" class="btn btn-primary">Subscribe</a>
+    </div>
+  </nav>
+</header>
+
+<section class="band" aria-label="Human check poll" style="border-top:0">
+  <div class="poll">
+    <div class="poll-tag">
+      <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#4FD1C5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M8 12l3 3 5-6"/></svg>
+      <p>Verify you are human</p>
+    </div>
+    <div id="poll-ask" style="display:flex;flex-direction:column;gap:20px">
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <h2>Machines don’t have opinions. You do.</h2>
+        <p style="color:var(--soft)">Where should AI be used?</p>
+      </div>
+      <div class="options">
+        <button type="button" class="option" aria-pressed="false" data-id="limited">
+          <strong>Only where it saves lives</strong>
+          <span>Health, medicine, research, security and defence. People keep doing the rest of the work.</span>
+        </button>
+        <button type="button" class="option" aria-pressed="false" data-id="everything">
+          <strong>Everything</strong>
+          <span>AI does all kinds of jobs, and people live on universal basic or health income (UBI/UHI).</span>
+        </button>
+      </div>
+      <div class="vote-row">
+        <button type="button" id="vote" class="btn btn-primary" disabled>I’m human — submit my vote</button>
+        <span class="hint">One question. Anonymous.</span>
+      </div>
+    </div>
+    <div id="poll-done" hidden style="display:flex;flex-direction:column;gap:8px">
+      <h2>Verified: you are human.</h2>
+      <p style="color:var(--soft)">You voted: <strong id="poll-choice" style="color:var(--text)"></strong>. Thank you. Keep reading to see why it matters.</p>
+    </div>
+  </div>
+</section>
+
+<main>
+<section id="top" class="wrap hero">
+  <div class="hero-text">
+    <p class="eyebrow">On AI, purpose and a life well lived</p>
+    <h1>Do we really need AI?</h1>
+    <p class="hero-sub">Ancient wisdom meets modern machines. Honest thinking on when AI lifts us up, when it quietly takes away what makes us human, and how to live with purpose in the age of intelligent machines.</p>
+    <div class="hero-ctas">
+      <a href="#manifesto" class="btn btn-primary">Read the manifesto</a>
+      <a href="#subscribe" class="btn btn-ghost">Join the journey</a>
+    </div>
+  </div>
+  <div class="hero-art">
+    <svg viewBox="0 0 400 440" role="img" aria-label="Cartoon of a calm old saint with a long white beard, saffron robe and a glowing robotic eye on his forehead">
+      <circle cx="200" cy="175" r="165" fill="#E8A33D" opacity="0.08"/>
+      <circle cx="200" cy="175" r="140" fill="none" stroke="#E8A33D" stroke-opacity="0.35" stroke-width="1.5" stroke-dasharray="2 8"/>
+      <path d="M60 440 C70 330 135 288 200 288 C265 288 330 330 340 440 Z" fill="#D9822B"/>
+      <path d="M118 330 C150 360 175 400 185 440 L140 440 C135 400 125 360 108 340 Z" fill="#B8681C"/>
+      <path d="M282 330 C250 360 225 400 215 440 L260 440 C265 400 275 360 292 340 Z" fill="#B8681C"/>
+      <rect x="178" y="250" width="44" height="45" rx="12" fill="#D9A47A"/>
+      <ellipse cx="124" cy="182" rx="13" ry="20" fill="#D9A47A"/>
+      <ellipse cx="276" cy="182" rx="13" ry="20" fill="#D9A47A"/>
+      <ellipse cx="200" cy="168" rx="78" ry="90" fill="#E9B98C"/>
+      <path d="M124 150 C112 170 116 205 132 215 C126 190 128 170 136 152 Z" fill="#F4F1EA"/>
+      <path d="M276 150 C288 170 284 205 268 215 C274 190 272 170 264 152 Z" fill="#F4F1EA"/>
+      <path d="M132 190 C126 275 160 345 200 360 C240 345 274 275 268 190 C252 228 228 240 200 238 C172 240 148 228 132 190 Z" fill="#F4F1EA"/>
+      <path d="M150 300 C165 330 185 345 200 350 C215 345 235 330 250 300" fill="none" stroke="#DCD6CA" stroke-width="2"/>
+      <path d="M170 215 C180 205 192 207 200 213 C208 207 220 205 230 215 C220 224 208 222 200 218 C192 222 180 224 170 215 Z" fill="#FFFFFF"/>
+      <path d="M190 232 Q200 237 210 232" fill="none" stroke="#B5785A" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M156 160 Q170 150 186 156" fill="none" stroke="#F4F1EA" stroke-width="6" stroke-linecap="round"/>
+      <path d="M214 156 Q230 150 244 160" fill="none" stroke="#F4F1EA" stroke-width="6" stroke-linecap="round"/>
+      <path d="M160 178 Q172 187 184 178" fill="none" stroke="#5A3A28" stroke-width="3" stroke-linecap="round"/>
+      <path d="M216 178 Q228 187 240 178" fill="none" stroke="#5A3A28" stroke-width="3" stroke-linecap="round"/>
+      <ellipse cx="165" cy="200" rx="10" ry="6" fill="#E59A86" opacity="0.5"/>
+      <ellipse cx="235" cy="200" rx="10" ry="6" fill="#E59A86" opacity="0.5"/>
+      <path d="M200 182 Q196 198 200 204" fill="none" stroke="#C98E66" stroke-width="2" stroke-linecap="round"/>
+      <path d="M170 92 L180 100 L180 112" fill="none" stroke="#4FD1C5" stroke-width="1.6" stroke-opacity="0.7"/>
+      <path d="M230 92 L220 100 L220 112" fill="none" stroke="#4FD1C5" stroke-width="1.6" stroke-opacity="0.7"/>
+      <circle cx="170" cy="92" r="2.5" fill="#4FD1C5"/>
+      <circle cx="230" cy="92" r="2.5" fill="#4FD1C5"/>
+      <circle cx="200" cy="118" r="30" fill="#4FD1C5" opacity="0.18"/>
+      <circle cx="200" cy="118" r="20" fill="#3A4250" stroke="#9AA6B2" stroke-width="3"/>
+      <circle cx="200" cy="100" r="1.8" fill="#C7D0D9"/>
+      <circle cx="200" cy="136" r="1.8" fill="#C7D0D9"/>
+      <circle cx="182" cy="118" r="1.8" fill="#C7D0D9"/>
+      <circle cx="218" cy="118" r="1.8" fill="#C7D0D9"/>
+      <circle cx="200" cy="118" r="11" fill="#4FD1C5"/>
+      <circle cx="200" cy="118" r="5" fill="#0E1116"/>
+      <circle cx="203" cy="115" r="2" fill="#FFFFFF"/>
+      <path d="M150 380 Q200 410 250 380" fill="none" stroke="#7A3E12" stroke-width="2"/>
+      <circle cx="160" cy="386" r="5" fill="#8B4A1C"/>
+      <circle cx="180" cy="394" r="5" fill="#8B4A1C"/>
+      <circle cx="200" cy="397" r="5" fill="#8B4A1C"/>
+      <circle cx="220" cy="394" r="5" fill="#8B4A1C"/>
+      <circle cx="240" cy="386" r="5" fill="#8B4A1C"/>
+    </svg>
+  </div>
+</section>
+
+<section class="band" aria-label="Quotes">
+  <div class="wrap quotes">
+    <figure>
+      <span class="qmark" aria-hidden="true">“</span>
+      <blockquote>A machine can carry your burden. Only you can carry your purpose.</blockquote>
+      <figcaption>— Artificial Saint</figcaption>
+    </figure>
+    <figure>
+      <span class="qmark" aria-hidden="true">“</span>
+      <blockquote>Give a person everything for free, and you may take the one thing they needed most: a reason to rise.</blockquote>
+      <figcaption>— Artificial Saint</figcaption>
+    </figure>
+    <figure>
+      <span class="qmark" aria-hidden="true">“</span>
+      <blockquote>Let AI sharpen your hands, never replace your heart.</blockquote>
+      <figcaption>— Artificial Saint</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section id="manifesto" class="narrow manifesto">
+  <p class="eyebrow">The manifesto</p>
+  <h2>The fire to live</h2>
+  <p class="lead">Why the greatest risk of AI may not be what it does to our jobs, but what it does to our will.</p>
+  <p>Every age has its great machine. The plough freed us from hunger, the engine from distance, the computer from drudgery. Now comes a machine that can think, write, draw and decide. It is the most powerful tool we have ever built, and for the first time, the tool is capable of doing the very things that gave our lives meaning.</p>
+  <p>Every great invention lifted both maker and user. Earlier machines took over our muscle, and we moved to work of the mind. AI now reaches for the mind itself, faster than people can adapt, while its gains flow to a few who own it. It may be the first invention that lifts the few while leaving many behind, unless we choose otherwise.</p>
+  <p>So the question is not only <em>“What can AI do?”</em> It is <em>“What should we still do ourselves?”</em></p>
+  <p>A human life is not a problem to be solved efficiently. It is a journey to be walked. We grow by struggling, learning, failing and trying again. The farmer who tends the field, the mother who teaches her child, the craftsman who masters his art: each finds purpose not in the result alone, but in the effort that earns it. Take away the effort, and the result feels empty.</p>
+  <p>This is why I worry about a world where every need is met without striving. Universal basic income and universal health income are often presented as the answer to AI taking our work. They come from a kind heart. But a safety net is not a purpose. When survival is guaranteed and nothing is asked in return, the quiet fire that pushes a person out of bed, to build, to serve, to create something great, can slowly go out. The very incentive to grow disappears. A society can be well fed and still be lost.</p>
+  <p>I am not against AI. I use it every day. I am for <strong>AI that serves human purpose</strong>, not AI that replaces it. Let it remove the boring, the dangerous and the repetitive. Let it make medicine cheaper and learning available to every child. But let us keep for ourselves the things that make us human: thinking hard, working with our hands, caring for each other, and chasing a goal bigger than ourselves.</p>
+  <p>The saints of old taught that the purpose of life is to grow, to serve and to find meaning. Machines cannot do that for us. They can only give us more time to do it, or more excuses not to.</p>
+  <p class="closing">Use the machine. Keep the fire.</p>
+</section>
+
+<section id="wisdom" class="band">
+  <div class="wrap section">
+    <div class="section-head">
+      <p class="eyebrow">Use AI wisely</p>
+      <h2>Where AI helps, and where it harms</h2>
+    </div>
+    <div class="two-col">
+      <div class="card">
+        <div class="card-head">
+          <svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#4FD1C5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></svg>
+          <h3>Use AI to…</h3>
+        </div>
+        <ul>
+          <li>Remove boring, repetitive work so you have time for what matters</li>
+          <li>Learn faster, as a patient tutor that never tires</li>
+          <li>Get a second opinion, then think for yourself</li>
+          <li>Make health care, education and services reach more people</li>
+          <li>Do dangerous jobs that put human lives at risk</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#E8A33D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9 9l6 6M15 9l-6 6"/></svg>
+          <h3>Don’t use AI to…</h3>
+        </div>
+        <ul>
+          <li>Replace your own thinking, judgment or values</li>
+          <li>Stand in for real friends, family and human connection</li>
+          <li>Skip the struggle that builds skill and character</li>
+          <li>Decide what your life should mean</li>
+          <li>Escape effort until purpose fades away</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="topics" class="wrap section">
+  <div class="section-head">
+    <p class="eyebrow">What we explore</p>
+    <h2>A healthy, happy, purposeful life</h2>
+  </div>
+  <div class="topics">
+    <a href="#subscribe" class="topic"><strong>AI and purpose</strong><span>Do we need it? How to use it without losing ourselves.</span></a>
+    <a href="#subscribe" class="topic"><strong>Eat well</strong><span>Simple, science-checked food tips for a longer life.</span></a>
+    <a href="#subscribe" class="topic"><strong>Live happy</strong><span>Habits and mindset for a calm mind in a noisy world.</span></a>
+    <a href="#subscribe" class="topic"><strong>Work and the future</strong><span>Staying relevant and hopeful as jobs change.</span></a>
+  </div>
+</section>
+
+<section id="subscribe" class="band" style="border-bottom:0">
+  <div class="narrow subscribe">
+    <h2>One honest idea a week</h2>
+    <p style="color:var(--soft)">Short essays and videos on AI, health and purpose. No noise.</p>
+    <form class="sub-form" id="sub-form">
+      <label for="email" class="sr-only">Email address</label>
+      <input id="email" type="email" placeholder="you@example.com" required>
+      <button type="submit" class="btn btn-primary">Subscribe</button>
+    </form>
+    <p id="sub-msg" class="hint" hidden>Thank you! You’re on the list.</p>
+    <div class="social">
+      <a href="https://www.youtube.com/@artificialsaint">YouTube</a>
+      <a href="https://www.instagram.com/artificialsaint">Instagram</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 Artificial Saint · artificialsaint.com</span>
+    <span>Use the machine. Keep the fire.</span>
+  </div>
+</footer>
+
+<script>
+// Poll (front end only — connect to a form service or database to store votes)
+(function(){
+  var options = document.querySelectorAll('.option');
+  var vote = document.getElementById('vote');
+  var choice = null, title = '';
+  options.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      options.forEach(function(b){ b.setAttribute('aria-pressed','false'); });
+      btn.setAttribute('aria-pressed','true');
+      choice = btn.dataset.id;
+      title = btn.querySelector('strong').textContent;
+      vote.disabled = false;
+    });
+  });
+  vote.addEventListener('click', function(){
+    if(!choice) return;
+    // TODO: send `choice` to your poll backend here.
+    document.getElementById('poll-choice').textContent = title;
+    document.getElementById('poll-ask').hidden = true;
+    document.getElementById('poll-done').hidden = false;
+  });
+})();
+
+// Subscribe (front end only — connect to your email service)
+document.getElementById('sub-form').addEventListener('submit', function(e){
+  e.preventDefault();
+  // TODO: send the email address to your newsletter service here.
+  this.hidden = true;
+  document.getElementById('sub-msg').hidden = false;
+});
+</script>
+</body>
+</html>

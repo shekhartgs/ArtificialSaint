@@ -1,2 +1,2 @@
 # ArtificialSaint
-My AI website
+My AI blog

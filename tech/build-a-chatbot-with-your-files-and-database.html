@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4591474599570983"
+     crossorigin="anonymous"></script>
+<title>Build a chatbot that answers from your own files and database | Artificial Saint</title>
+<meta name="description" content="Step-by-step guide with working Python code: a website chatbot that answers customer questions from local files and a database, without making things up.">
+<meta property="og:title" content="Build a chatbot that answers from your own files and database | Artificial Saint">
+<meta property="og:description" content="Step-by-step guide with working Python code: a website chatbot that answers customer questions from local files and a database, without making things up.">
+<meta property="og:url" content="https://artificialsaint.com/tech/build-a-chatbot-with-your-files-and-database.html">
+<link rel="canonical" href="https://artificialsaint.com/tech/build-a-chatbot-with-your-files-and-database.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site.css">
+</head>
+<body>
+<header>
+  <nav class="wrap" aria-label="Main">
+    <a href="/" class="logo">
+      <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="12" fill="none" stroke="#E8A33D" stroke-width="2"/><circle cx="14" cy="14" r="5" fill="#4FD1C5"/><circle cx="14" cy="14" r="2" fill="#0E1116"/></svg>
+      <span>Artificial Saint</span>
+    </a>
+    <div class="navlinks">
+      <a href="/tech/" aria-current="page">Tech</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#subscribe" class="btn btn-primary">Subscribe</a>
+    </div>
+  </nav>
+</header>
+<main>
+<article class="narrow">
+  <header>
+    <p class="eyebrow">Tech · Build</p>
+    <h1>Build a chatbot that answers from your own files and database</h1>
+    <p class="meta">October 2026 · 9 min read</p>
+  </header>
+  <p class="standfirst">A step-by-step guide to a chatbot that answers customer questions from your own files and your own database, without making things up. About 200 lines of Python and one small web page.</p>
+
+  <p>A basic chatbot that only uses an AI model's general knowledge is not much use on a real website. It does not know your products, your prices or your return policy, so it guesses. And a guessing shop assistant is worse than none.</p>
+  <p>The fix is to <strong>connect the AI to your own information</strong>. In this guide we build a chatbot for a simple online shop that can:</p>
+  <ul>
+    <li>Answer policy questions (shipping, returns, support hours) from text files in a folder</li>
+    <li>Search the product catalogue in a database, including price and stock</li>
+    <li>Look up an order's status, safely, only when the customer gives the order number and email</li>
+    <li>Say "I don't know" instead of inventing answers</li>
+  </ul>
+  <p>The same pattern works for any simple website: a clinic, a school, a restaurant or a small business.</p>
+  <div class="callout"><strong>Download the full working code:</strong> <a href="/tech/files/shopbot.zip">shopbot.zip</a> (Python, SQLite, Flask).</div>
+
+  <h2>How it works</h2>
+  <p>The key idea is called <strong>tool use</strong> (also known as function calling). You give the AI model a list of tools, with a short description of each. When a customer asks a question, the model decides which tool it needs, your code runs that tool against your real data, and the model writes the answer from the result.</p>
+  <pre><code>Customer  →  Chat window  →  Your server  →  AI model
+                                   ↑              │
+                                   │   "call search_products('shoes')"
+                                   │              ↓
+                           Your database / files  ←┘
+                                   │
+                           result goes back to the model → friendly answer</code></pre>
+  <p>Notice what the AI never gets: direct access to your database. It can only <em>ask</em> your code to run the specific, safe tools you wrote. This is the most important design choice in the whole project.</p>
+
+  <h2>What you need</h2>
+  <ul>
+    <li>Python 3.10 or newer</li>
+    <li>An API key from an AI provider that supports tool use. This guide uses Anthropic's Claude API; OpenAI, Google Gemini and local models through Ollama all support the same idea with slightly different code.</li>
+    <li>About an hour</li>
+  </ul>
+  <p>Project layout:</p>
+  <pre><code>shopbot/
+├── setup_db.py      # creates a sample database
+├── bot.py           # tools + AI conversation loop
+├── app.py           # small web server
+├── docs/            # your policy files (.md or .txt)
+│   ├── shipping.md
+│   ├── returns.md
+│   └── faq.md
+└── static/
+    └── index.html   # your website with the chat widget</code></pre>
+  <p>Install the two libraries and set your API key:</p>
+  <pre><code>pip install anthropic flask
+export ANTHROPIC_API_KEY="your-key-here"     # Windows: set ANTHROPIC_API_KEY=your-key-here</code></pre>
+
+  <h2>Step 1: Create a sample database</h2>
+  <p>Most small sites already have a database. For this guide we create a tiny SQLite one with products and orders. Replace this with your real database later.</p>
+  <pre><code>import sqlite3
+
+db = sqlite3.connect(&quot;shop.db&quot;)
+db.executescript(&quot;&quot;&quot;
+DROP TABLE IF EXISTS products;
+DROP TABLE IF EXISTS orders;
+
+CREATE TABLE products (
+  id       INTEGER PRIMARY KEY,
+  name     TEXT NOT NULL,
+  category TEXT,
+  price    REAL,
+  stock    INTEGER,
+  description TEXT
+);
+
+CREATE TABLE orders (
+  id       INTEGER PRIMARY KEY,
+  email    TEXT NOT NULL,
+  status   TEXT,
+  total    REAL,
+  placed_on TEXT
+);
+
+INSERT INTO products (name, category, price, stock, description) VALUES
+ (&#x27;Cotton T-shirt&#x27;,      &#x27;Clothing&#x27;,    19.99, 40, &#x27;Soft 100% cotton tee, sizes S to XL&#x27;),
+ (&#x27;Running Shoes&#x27;,       &#x27;Footwear&#x27;,    79.00, 12, &#x27;Lightweight shoes with cushioned sole&#x27;),
+ (&#x27;Steel Water Bottle&#x27;,  &#x27;Accessories&#x27;, 24.50,  0, &#x27;Keeps drinks cold for 24 hours&#x27;),
+ (&#x27;Yoga Mat&#x27;,            &#x27;Fitness&#x27;,     35.00,  8, &#x27;Non-slip 6 mm mat with carry strap&#x27;),
+ (&#x27;Wireless Earbuds&#x27;,    &#x27;Electronics&#x27;, 59.99, 25, &#x27;8-hour battery, noise reduction&#x27;);
+
+INSERT INTO orders (id, email, status, total, placed_on) VALUES
+ (1001, &#x27;asha@example.com&#x27;, &#x27;Shipped&#x27;,    98.99, &#x27;2026-10-20&#x27;),
+ (1002, &#x27;ravi@example.com&#x27;, &#x27;Processing&#x27;, 35.00, &#x27;2026-10-26&#x27;);
+&quot;&quot;&quot;)
+db.commit()
+db.close()
+print(&quot;shop.db created&quot;)</code></pre>
+  <p>Run it once with <code>python setup_db.py</code>.</p>
+
+  <h2>Step 2: Add your files</h2>
+  <p>Put your policies, FAQs and other help text as plain <code>.md</code> or <code>.txt</code> files in the <code>docs</code> folder. Short paragraphs work best, because the bot searches paragraph by paragraph. For example, <code>docs/shipping.md</code>:</p>
+  <pre><code># Shipping
+
+We ship to all US states. Standard shipping takes 3 to 5 business days and is free on orders over $50. Express shipping takes 1 to 2 business days and costs $12.
+
+Orders placed before 2 pm Pacific time on a business day ship the same day.</code></pre>
+
+  <h2>Step 3: Build the tools and the conversation loop</h2>
+  <p>This is the heart of the chatbot. Read it in four parts:</p>
+  <ol>
+    <li><strong>Local files:</strong> load every file in <code>docs/</code>, split it into paragraphs and find the ones that share the most words with the question.</li>
+    <li><strong>Database:</strong> two read-only functions, one to search products and one to look up an order. Both use parameterised queries (the <code>?</code> placeholders), which protects you from SQL injection.</li>
+    <li><strong>Tool descriptions:</strong> tell the AI what each tool does and what inputs it needs. Clear descriptions matter; the model chooses tools based on them.</li>
+    <li><strong>The loop:</strong> send the conversation to the model. If it asks for a tool, run it and send back the result. Repeat until it gives a final answer.</li>
+  </ol>
+  <pre><code>import json
+import re
+import sqlite3
+from pathlib import Path
+
+import anthropic
+
+MODEL = &quot;claude-sonnet-5-5&quot;   # or any model that supports tool use
+DB_PATH = &quot;shop.db&quot;
+DOCS_DIR = Path(&quot;docs&quot;)
+
+client = anthropic.Anthropic()  # reads ANTHROPIC_API_KEY from the environment
+
+SYSTEM_PROMPT = &quot;&quot;&quot;You are the friendly shopping assistant for Your Shop.
+Answer only questions about our products, orders and store policies.
+Always use the tools to look up facts. Never invent products, prices,
+stock levels, order details or policies. If the tools do not give you
+the answer, say you don&#x27;t know and suggest emailing support@yourshop.example.
+To check an order, you need BOTH the order number and the email used to
+place it. Keep answers short and friendly.&quot;&quot;&quot;
+
+
+# ---------- Part 1: your local files ----------
+
+def load_docs():
+    &quot;&quot;&quot;Split every .md/.txt file in docs/ into paragraphs.&quot;&quot;&quot;
+    chunks = []
+    for path in DOCS_DIR.glob(&quot;*&quot;):
+        if path.suffix.lower() not in (&quot;.md&quot;, &quot;.txt&quot;):
+            continue
+        for para in path.read_text(encoding=&quot;utf-8&quot;).split(&quot;\n\n&quot;):
+            if para.strip():
+                chunks.append({&quot;source&quot;: path.name, &quot;text&quot;: para.strip()})
+    return chunks
+
+
+DOC_CHUNKS = load_docs()
+
+
+def words(text):
+    return set(re.findall(r&quot;[a-z0-9]+&quot;, text.lower()))
+
+
+def search_docs(query, top_k=3):
+    &quot;&quot;&quot;Return the paragraphs that share the most words with the query.&quot;&quot;&quot;
+    q = words(query)
+    scored = [(len(q &amp; words(c[&quot;text&quot;])), c) for c in DOC_CHUNKS]
+    scored = [s for s in scored if s[0] &gt; 0]
+    scored.sort(key=lambda s: s[0], reverse=True)
+    return [c for _, c in scored[:top_k]] or [{&quot;text&quot;: &quot;No matching policy found.&quot;}]
+
+
+# ---------- Part 2: your database ----------
+
+def db():
+    # Read-only connection: the bot can look, but never change data.
+    conn = sqlite3.connect(f&quot;file:{DB_PATH}?mode=ro&quot;, uri=True)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+
+def search_products(query=&quot;&quot;, max_price=None):
+    sql = &quot;&quot;&quot;SELECT name, category, price, stock, description FROM products
+             WHERE (name LIKE ? OR category LIKE ? OR description LIKE ?)&quot;&quot;&quot;
+    like = f&quot;%{query}%&quot;
+    params = [like, like, like]
+    if max_price is not None:
+        sql += &quot; AND price &lt;= ?&quot;
+        params.append(max_price)
+    with db() as conn:
+        rows = conn.execute(sql + &quot; LIMIT 10&quot;, params).fetchall()
+    return [dict(r) for r in rows] or [{&quot;result&quot;: &quot;No matching products.&quot;}]
+
+
+def get_order_status(order_id, email):
+    with db() as conn:
+        row = conn.execute(
+            &quot;SELECT id, status, total, placed_on FROM orders WHERE id = ? AND lower(email) = lower(?)&quot;,
+            (order_id, email),
+        ).fetchone()
+    return dict(row) if row else {&quot;result&quot;: &quot;No order found with that number and email.&quot;}
+
+
+# ---------- Part 3: tell the AI what tools it has ----------
+
+TOOLS = [
+    {
+        &quot;name&quot;: &quot;search_products&quot;,
+        &quot;description&quot;: &quot;Search the product catalogue by keyword (name, category or description). &quot;
+                       &quot;Returns name, category, price, stock and description.&quot;,
+        &quot;input_schema&quot;: {
+            &quot;type&quot;: &quot;object&quot;,
+            &quot;properties&quot;: {
+                &quot;query&quot;: {&quot;type&quot;: &quot;string&quot;, &quot;description&quot;: &quot;Keyword, e.g. &#x27;shoes&#x27; or &#x27;electronics&#x27;&quot;},
+                &quot;max_price&quot;: {&quot;type&quot;: &quot;number&quot;, &quot;description&quot;: &quot;Optional maximum price in USD&quot;},
+            },
+            &quot;required&quot;: [&quot;query&quot;],
+        },
+    },
+    {
+        &quot;name&quot;: &quot;get_order_status&quot;,
+        &quot;description&quot;: &quot;Look up an order. Requires the order number and the customer&#x27;s email.&quot;,
+        &quot;input_schema&quot;: {
+            &quot;type&quot;: &quot;object&quot;,
+            &quot;properties&quot;: {
+                &quot;order_id&quot;: {&quot;type&quot;: &quot;integer&quot;},
+                &quot;email&quot;: {&quot;type&quot;: &quot;string&quot;},
+            },
+            &quot;required&quot;: [&quot;order_id&quot;, &quot;email&quot;],
+        },
+    },
+    {
+        &quot;name&quot;: &quot;search_docs&quot;,
+        &quot;description&quot;: &quot;Search store policies and FAQs: shipping, returns, refunds, support, gift wrap.&quot;,
+        &quot;input_schema&quot;: {
+            &quot;type&quot;: &quot;object&quot;,
+            &quot;properties&quot;: {&quot;query&quot;: {&quot;type&quot;: &quot;string&quot;}},
+            &quot;required&quot;: [&quot;query&quot;],
+        },
+    },
+]
+
+TOOL_FUNCTIONS = {
+    &quot;search_products&quot;: search_products,
+    &quot;get_order_status&quot;: get_order_status,
+    &quot;search_docs&quot;: search_docs,
+}
+
+
+def run_tool(name, args):
+    try:
+        return TOOL_FUNCTIONS[name](**args)
+    except Exception as e:  # never crash the chat because of one bad call
+        return {&quot;error&quot;: str(e)}
+
+
+# ---------- Part 4: the conversation loop ----------
+
+def chat(history):
+    &quot;&quot;&quot;history: list of {&quot;role&quot;: &quot;user&quot;|&quot;assistant&quot;, &quot;content&quot;: &quot;text&quot;}&quot;&quot;&quot;
+    messages = list(history)
+    for _ in range(5):  # safety limit on tool rounds
+        response = client.messages.create(
+            model=MODEL,
+            max_tokens=1024,
+            system=SYSTEM_PROMPT,
+            tools=TOOLS,
+            messages=messages,
+        )
+        messages.append({&quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: response.content})
+
+        if response.stop_reason != &quot;tool_use&quot;:
+            return &quot;&quot;.join(b.text for b in response.content if b.type == &quot;text&quot;)
+
+        results = []
+        for block in response.content:
+            if block.type == &quot;tool_use&quot;:
+                output = run_tool(block.name, block.input)
+                results.append({
+                    &quot;type&quot;: &quot;tool_result&quot;,
+                    &quot;tool_use_id&quot;: block.id,
+                    &quot;content&quot;: json.dumps(output),
+                })
+        messages.append({&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: results})
+
+    return &quot;Sorry, I couldn&#x27;t finish that. Please try rephrasing your question.&quot;</code></pre>
+  <p>Two details are worth pointing out. The system prompt tells the model to <em>always</em> use the tools and to admit when it does not know. And the database connection opens in read-only mode (<code>mode=ro</code>), so even a confused or manipulated model cannot change or delete your data.</p>
+
+  <h2>Step 4: A small web server</h2>
+  <p>The browser must never talk to the AI provider directly, or your secret API key would be visible to anyone. Instead, the page talks to your own server, which holds the key.</p>
+  <pre><code>from flask import Flask, jsonify, request, send_from_directory
+
+from bot import chat
+
+app = Flask(__name__, static_folder=&quot;static&quot;)
+
+
+@app.get(&quot;/&quot;)
+def home():
+    return send_from_directory(&quot;static&quot;, &quot;index.html&quot;)
+
+
+@app.post(&quot;/chat&quot;)
+def chat_endpoint():
+    history = request.get_json().get(&quot;messages&quot;, [])[-20:]  # keep the last 20 turns
+    if not history or history[-1].get(&quot;role&quot;) != &quot;user&quot;:
+        return jsonify({&quot;reply&quot;: &quot;Please type a question.&quot;}), 400
+    return jsonify({&quot;reply&quot;: chat(history)})
+
+
+if __name__ == &quot;__main__&quot;:
+    app.run(port=5000, debug=True)</code></pre>
+
+  <h2>Step 5: Add the chat widget to your site</h2>
+  <p>This is a plain HTML page with a floating "Chat with us" button. Copy the button, chat box, styles and script into your own site's pages.</p>
+  <pre><code>&lt;!doctype html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+&lt;meta charset=&quot;utf-8&quot;&gt;
+&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
+&lt;title&gt;Your Shop&lt;/title&gt;
+&lt;style&gt;
+  body { font-family: system-ui, sans-serif; margin: 0; padding: 24px; }
+  #chat-btn { position: fixed; right: 20px; bottom: 20px; border: 0; border-radius: 999px;
+              padding: 14px 20px; background: #1f6feb; color: #fff; font-size: 16px; cursor: pointer; }
+  #chat-box { position: fixed; right: 20px; bottom: 80px; width: min(360px, calc(100vw - 40px));
+              height: 460px; display: none; flex-direction: column; background: #fff;
+              border: 1px solid #ddd; border-radius: 14px; box-shadow: 0 8px 30px rgba(0,0,0,.15); }
+  #log { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+  .msg { padding: 8px 12px; border-radius: 12px; max-width: 85%; white-space: pre-wrap; }
+  .user { align-self: flex-end; background: #1f6feb; color: #fff; }
+  .bot  { align-self: flex-start; background: #f0f2f5; }
+  form { display: flex; gap: 8px; padding: 10px; border-top: 1px solid #eee; }
+  input { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 15px; }
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;Welcome to Your Shop&lt;/h1&gt;
+  &lt;p&gt;Your normal website content goes here.&lt;/p&gt;
+
+  &lt;button id=&quot;chat-btn&quot;&gt;Chat with us&lt;/button&gt;
+  &lt;div id=&quot;chat-box&quot;&gt;
+    &lt;div id=&quot;log&quot;&gt;&lt;div class=&quot;msg bot&quot;&gt;Hi! Ask me about products, orders, shipping or returns.&lt;/div&gt;&lt;/div&gt;
+    &lt;form id=&quot;chat-form&quot;&gt;
+      &lt;input id=&quot;chat-input&quot; placeholder=&quot;Type your question…&quot; autocomplete=&quot;off&quot;&gt;
+      &lt;button&gt;Send&lt;/button&gt;
+    &lt;/form&gt;
+  &lt;/div&gt;
+
+&lt;script&gt;
+  const box = document.getElementById(&quot;chat-box&quot;);
+  const log = document.getElementById(&quot;log&quot;);
+  const input = document.getElementById(&quot;chat-input&quot;);
+  const history = [];
+
+  document.getElementById(&quot;chat-btn&quot;).onclick = () =&gt; {
+    box.style.display = box.style.display === &quot;flex&quot; ? &quot;none&quot; : &quot;flex&quot;;
+    input.focus();
+  };
+
+  function add(text, who) {
+    const div = document.createElement(&quot;div&quot;);
+    div.className = &quot;msg &quot; + who;
+    div.textContent = text;          // textContent, never innerHTML, to avoid script injection
+    log.appendChild(div);
+    log.scrollTop = log.scrollHeight;
+    return div;
+  }
+
+  document.getElementById(&quot;chat-form&quot;).onsubmit = async (e) =&gt; {
+    e.preventDefault();
+    const text = input.value.trim();
+    if (!text) return;
+    input.value = &quot;&quot;;
+    add(text, &quot;user&quot;);
+    history.push({ role: &quot;user&quot;, content: text });
+    const thinking = add(&quot;…&quot;, &quot;bot&quot;);
+    try {
+      const res = await fetch(&quot;/chat&quot;, {
+        method: &quot;POST&quot;,
+        headers: { &quot;Content-Type&quot;: &quot;application/json&quot; },
+        body: JSON.stringify({ messages: history }),
+      });
+      const data = await res.json();
+      thinking.textContent = data.reply;
+      history.push({ role: &quot;assistant&quot;, content: data.reply });
+    } catch {
+      thinking.textContent = &quot;Sorry, something went wrong. Please try again.&quot;;
+      history.pop();
+    }
+  };
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+
+  <h2>Step 6: Run and test it</h2>
+  <pre><code>python setup_db.py
+python app.py</code></pre>
+  <p>Open <code>http://localhost:5000</code>, click the chat button and try questions like these:</p>
+  <ul>
+    <li>"Do you have running shoes?" (uses the database)</li>
+    <li>"Anything under $30?" (database with a price filter)</li>
+    <li>"How long does express shipping take?" (uses your files)</li>
+    <li>"Where is order 1001? My email is asha@example.com" (order lookup)</li>
+    <li>"Where is order 1001?" with the wrong email (should politely refuse)</li>
+    <li>"Do you sell laptops?" (should say no, not invent one)</li>
+  </ul>
+  <p>The last two tests matter most. A good shop bot is judged by what it refuses to make up.</p>
+
+  <h2>Making it production-ready</h2>
+  <p>The code above is deliberately simple. Before you put it on a live site, work through this list:</p>
+  <ul>
+    <li><strong>Better file search.</strong> The word-matching search is fine for a few pages. For hundreds of documents, switch to <em>embeddings</em> and a vector store, which find paragraphs by meaning rather than exact words. This is what people call RAG (retrieval-augmented generation).</li>
+    <li><strong>Protect customer data.</strong> Only reveal order details after verifying the customer. For logged-in users, use their session instead of asking for an email.</li>
+    <li><strong>Limit costs and abuse.</strong> Add rate limits per visitor, cap message length, and set a monthly spending limit with your AI provider.</li>
+    <li><strong>Hosting.</strong> Static hosts such as GitHub Pages cannot run Python. Host the server on a service that can (for example Render, Railway, Azure App Service or a small VPS) and point the widget's <code>fetch</code> call at that address.</li>
+    <li><strong>Logging and review.</strong> Log questions and answers (without personal data) and read them weekly. They show you which policies are missing from your docs.</li>
+    <li><strong>A human handoff.</strong> Always give customers a way to reach a person.</li>
+  </ul>
+
+  <h2>Adapting it to any website</h2>
+  <p>The pattern stays the same whatever the site. Only the tools change:</p>
+  <ul>
+    <li><strong>Clinic:</strong> opening hours and services from files; appointment availability from the booking database.</li>
+    <li><strong>School:</strong> admission rules and fees from files; event calendar from the database.</li>
+    <li><strong>Restaurant:</strong> menu and allergen info from the database; booking policy from files.</li>
+  </ul>
+  <p>Write small, safe, read-only tools for the data you want to expose, describe them clearly, and let the model choose. That is all an "AI agent" on a website really is: a model, a loop, and well-guarded tools.</p>
+
+  <div class="callout"><strong>Key takeaway:</strong> never let the AI be the source of truth. Let it be the friendly voice that reads your truth back to the customer.</div>
+
+  <a class="back" href="/tech/">← All Tech posts</a>
+</article>
+</main>
+<footer>
+  <div class="wrap">
+    <span>© 2026 Artificial Saint · artificialsaint.com</span>
+    <span>Use the machine. Keep the fire.</span>
+  </div>
+</footer>
+</body>
+</html>

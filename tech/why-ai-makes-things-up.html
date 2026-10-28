@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4591474599570983"
+     crossorigin="anonymous"></script>
+<title>Why your AI makes things up, and 6 ways to stop it | Artificial Saint</title>
+<meta name="description" content="Why large language models hallucinate, and six practical ways to reduce made-up answers in chatbots and AI agents.">
+<meta property="og:title" content="Why your AI makes things up, and 6 ways to stop it | Artificial Saint">
+<meta property="og:description" content="Why large language models hallucinate, and six practical ways to reduce made-up answers in chatbots and AI agents.">
+<meta property="og:url" content="https://artificialsaint.com/tech/why-ai-makes-things-up.html">
+<link rel="canonical" href="https://artificialsaint.com/tech/why-ai-makes-things-up.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site.css">
+</head>
+<body>
+<header>
+  <nav class="wrap" aria-label="Main">
+    <a href="/" class="logo">
+      <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="12" fill="none" stroke="#E8A33D" stroke-width="2"/><circle cx="14" cy="14" r="5" fill="#4FD1C5"/><circle cx="14" cy="14" r="2" fill="#0E1116"/></svg>
+      <span>Artificial Saint</span>
+    </a>
+    <div class="navlinks">
+      <a href="/tech/" aria-current="page">Tech</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#subscribe" class="btn btn-primary">Subscribe</a>
+    </div>
+  </nav>
+</header>
+<main>
+<article class="narrow">
+  <header>
+    <p class="eyebrow">Tech · GenAI basics</p>
+    <h1>Why your AI makes things up, and 6 ways to stop it</h1>
+    <p class="meta">October 2026 · 7 min read</p>
+  </header>
+
+  <p>You ask an AI assistant a simple question. It answers confidently, with a name, a number or a reference that does not exist. This is called a <strong>hallucination</strong>, and it is the most common reason people stop trusting generative AI.</p>
+  <p>The good news: most hallucinations are predictable, and you can reduce them a lot with a few simple habits.</p>
+
+  <h2>Why it happens</h2>
+  <p>A large language model does not look facts up. It predicts the next most likely word, based on patterns it learned during training. Most of the time, the likely answer is also the true one. But when the model does not really know, it still produces something that <em>sounds</em> right, because sounding right is what it was trained to do.</p>
+  <p>Hallucinations are most likely when:</p>
+  <ul>
+    <li>The question is about something recent, niche or private (your company, your documents)</li>
+    <li>You ask for exact details: figures, dates, quotes, links, citations</li>
+    <li>The prompt pushes for an answer at any cost ("Just tell me the number")</li>
+    <li>The conversation is very long and early details get lost</li>
+  </ul>
+
+  <h2>1. Give it the facts (grounding)</h2>
+  <p>The strongest fix is to stop asking the model to remember and start asking it to read. Paste the document, policy or data into the prompt and tell it to answer only from that.</p>
+  <pre><code>Answer using only the text below. If the answer is not in the text,
+say "Not in the document."
+
+[paste your text here]</code></pre>
+  <p>In apps and agents, this pattern is called <strong>retrieval-augmented generation (RAG)</strong>: the system first searches your content, then hands the relevant pieces to the model.</p>
+
+  <h2>2. Give it permission to say "I don't know"</h2>
+  <p>Models try to be helpful. If "I'm not sure" is not an acceptable answer, they will guess. Say it explicitly:</p>
+  <pre><code>If you are not confident, say so and explain what you would need to check.</code></pre>
+
+  <h2>3. Ask for sources, then check them</h2>
+  <p>Ask the model to quote the exact sentence from your document that supports each claim. Made-up claims usually cannot produce a matching quote. For web answers, use a tool with live search and actually open the links. A citation you have not opened is not a citation.</p>
+
+  <h2>4. Break big questions into small steps</h2>
+  <p>"Write a full market report" invites invention. "List the five facts you found, then summarise them" keeps the model honest at each step, and lets you spot the weak link.</p>
+
+  <h2>5. Lower the creativity for factual work</h2>
+  <p>If you build with an API, a lower <code>temperature</code> setting (for example 0 to 0.3) makes output more consistent and less inventive. Keep higher settings for brainstorming and creative writing.</p>
+
+  <h2>6. Add a checker for anything that matters</h2>
+  <p>For agents that take actions or produce reports, add a second step that reviews the first: a separate prompt or model that checks each claim against the source, or simple code that validates numbers, dates and links. Humans should still review anything high-stakes.</p>
+
+  <div class="callout"><strong>Rule of thumb:</strong> use AI to draft, summarise and reason over facts you give it. Be careful when you ask it to <em>be</em> the source of facts.</div>
+
+  <h2>Quick checklist</h2>
+  <ol>
+    <li>Did I give it the source material?</li>
+    <li>Did I allow "I don't know"?</li>
+    <li>Did I ask for quotes or citations, and check them?</li>
+    <li>Is the task broken into steps?</li>
+    <li>Is a person or checker reviewing the result?</li>
+  </ol>
+
+  <a class="back" href="/tech/">← All Tech posts</a>
+</article>
+</main>
+<footer>
+  <div class="wrap">
+    <span>© 2026 Artificial Saint · artificialsaint.com</span>
+    <span>Use the machine. Keep the fire.</span>
+  </div>
+</footer>
+</body>
+</html>
